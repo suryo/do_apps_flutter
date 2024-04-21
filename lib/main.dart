@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(),
+      debugShowCheckedModeBanner: false
     );
   }
 }
@@ -30,7 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _pages = [
     LandingPage(),
     OrderPage(),
-    CartPage(),
+    OrderApprovedPage(),
   ];
 
   @override
@@ -51,8 +53,8 @@ class _MyHomePageState extends State<MyHomePage> {
             label: 'Orders',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
+            icon: Icon(Icons.check),
+            label: 'Approved Orders',
           ),
         ],
         currentIndex: _selectedIndex,
@@ -191,16 +193,33 @@ class _OrderPageState extends State<OrderPage> {
               itemCount: orders.length,
               itemBuilder: (context, index) {
                 var order = orders[index];
+                var total = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ')
+                    .format(double.parse(order['ordertotal']));
+                Color statusColor = Colors.black;
+                if (order['status'] == 'approve') {
+                  statusColor = Colors.green;
+                } else if (order['status'] == 'reject') {
+                  statusColor = Colors.red;
+                } else if (order['status'] == 'revisi') {
+                  statusColor = Color.fromARGB(255, 155, 78, 6);
+                }
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ListTile(
-                      title: Text('Order: ${order['nomerorder']}'),
+                      title: Text(
+                        'Order: ${order['nomerorder']}',
+                        style: TextStyle(color: statusColor),
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Total: \$${order['ordertotal']}'),
-                          Text('Status: ${order['status']}'),
+                          Text('Total: $total'),
+                          Text(
+                            'Status: ${order['status']}',
+                            style: TextStyle(color: statusColor),
+                          ),
                           Text('Add Catatan: ${order['addcatatan'] ?? "-"}'),
                         ],
                       ),
@@ -240,11 +259,61 @@ class _OrderPageState extends State<OrderPage> {
   }
 }
 
-class CartPage extends StatelessWidget {
+class OrderApprovedPage extends StatefulWidget {
+  @override
+  _OrderApprovedPageState createState() => _OrderApprovedPageState();
+}
+
+class _OrderApprovedPageState extends State<OrderApprovedPage> {
+  Future<List<dynamic>?> _fetchApprovedOrders() async {
+    final response = await http.get(
+        Uri.parse('http://testdo.zonainformatika.com/api/deliveryorders?status=approve'));
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load approved orders');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Cart Page'),
+    return FutureBuilder<List<dynamic>?>(
+      future: _fetchApprovedOrders(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError || snapshot.data == null) {
+          return Center(child: Text('Error: Failed to load approved orders'));
+        } else {
+          List<dynamic> orders = snapshot.data!;
+          return ListView.builder(
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              var order = orders[index];
+              var total = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ')
+                  .format(double.parse(order['ordertotal']));
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: Text('Order: ${order['nomerorder']}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Total: $total'),
+                        Text('Status: ${order['status']}'),
+                        Text('Add Catatan: ${order['addcatatan'] ?? "-"}'),
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                ],
+              );
+            },
+          );
+        }
+      },
     );
   }
 }
@@ -253,7 +322,25 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Landing Page'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Selamat Datang di Delivery Order Apps',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Apps ini dibuat untuk Technical Test: Mobile Programmer',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Created By : suryoatm@gmail.com',
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }
