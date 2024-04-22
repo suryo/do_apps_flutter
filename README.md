@@ -1,16 +1,52 @@
-# do_apps_flutter
 
-A new Flutter project.
+# Delivery Order (DO) Apps - Flutter
 
-## Getting Started
+Applikasi berbasis Android Flutter untuk melihat data Delivery Order dan melakukan Approval. Terdapat 3 page yaitu :
+- Landing
+- Order 
+- Approved Order
 
-This project is a starting point for a Flutter application.
+Pada Order Page terdapat tombol berikut: 
+- Approve, maka status Delivery Order sudah disetujui dan bisa dikerjakan. 
+- Reject, akan muncul dialog yang wajib diisikan sebab penolakannya oleh Approver. 
+- Revisi, akan muncul dialog yang wajib diisikan sebab revisinya oleh Approver. Delivery Order kembali ke Creator untuk diperbaiki datanya
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Environment
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Ada beberapa peralatan yang harus kita install untuk memulai Flutter:
+
+- Java Development Kit (JDK);
+- Android Studio;
+- Android SDK;
+- Flutter SDK;
+- Teks Editor (atau bisa juga pakai Android Studio).
+
+
+## Installation
+
+Install do_apps_flutter :
+
+```bash
+  git clone https://github.com/suryo/do_apps_flutter.git
+  cd do_apps_flutter
+  flutter pub get
+  flutter run
+```
+
+    
+## Documentation
+
+[Documentation](https://linktodocumentation)
+
+
+## Related
+
+Aplikasi ini terhubung dengan API Laravel :
+
+[do_apps_laravel](https://github.com/suryo/do_apps_laravel)
+
+
+## Authors
+
+- [@suryoatmojo](https://www.github.com/suryo)
